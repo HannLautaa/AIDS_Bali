@@ -19,24 +19,6 @@ def load_css(file_name):
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 load_css("assets/styles.css")
-
-# def calculate_morans_i(gdf_merged, col):
-#     try:
-#         w = Queen.from_dataframe(gdf_merged)
-#         w.transform = 'r'
-        
-#         y = gdf_merged[col].values
-        
-#         if y.sum() == 0:
-#             st.warning("⚠️ Semua nilai kasus adalah 0, Moran's I tidak dapat dihitung")
-#             return None, None
-        
-#         moran = Moran(y, w, permutations=999, two_tailed=False)
-        
-#         return moran, w
-#     except Exception as e:
-#         st.error(f"Error calculating Moran's I: {str(e)}")
-#         return None, None
     
 def calculate_morans_i(gdf_merged, col):
     try:
@@ -72,9 +54,7 @@ gdf = gpd.read_file('data/gadm41_IDN_2.json')
 gdf = gdf[gdf['NAME_1'] == 'Bali'].reset_index(drop=True)
 
 merged = gdf.merge(data, right_on='Kabupaten/Kota', left_on='NAME_2').set_index('NAME_2')
-# merged_2024 = merged[merged['Tahun'] == 2024]
 
-# with st.sidebar:
 t1, _ = st.columns([1, 5])
 with t1:
     tahun = st.selectbox('Pilih Tahun', options=sorted(data['Tahun'].unique()), index=4)
@@ -126,7 +106,6 @@ with tabs1:
 
     fig.update_geos(fitbounds="locations", visible=False)
     fig.update_layout(
-        # paper_bgcolor="white",
         plot_bgcolor="white",
         margin=dict(l=0, r=0, t=30, b=0)
     )
@@ -147,7 +126,6 @@ with tabs1:
 
     fig2.update_geos(fitbounds="locations", visible=False)
     fig2.update_layout(
-        # paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor= 'rgba(0,0,0,0)',
         margin=dict(l=0, r=0, t=30, b=0),
     )
@@ -157,14 +135,12 @@ with tabs1:
         with st.container(border=True):
             st.plotly_chart(fig, 
                             config={
-                                # 'displayModeBar': True,
                                 'scrollZoom': False}
                             )
     with c2:
         with st.container(border=True):
             st.plotly_chart(fig2,
                             config={
-                                # 'displayModeBar': True,
                                 'scrollZoom': False}
                             )
             
@@ -198,7 +174,7 @@ with tabs2:
     )
     fig_scatter.update_xaxes(
         dtick=1,
-        tickformat='d'   # pastikan tanpa desimal
+        tickformat='d'
     )
     with st.container(border=True):
         st.plotly_chart(fig_line)
@@ -243,7 +219,6 @@ with tabs3:
 
     fig3.update_geos(fitbounds="locations", visible=False)
     fig3.update_layout(
-        # paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor= 'rgba(0,0,0,0)',
         margin=dict(l=0, r=0, t=30, b=0),
     )
@@ -261,7 +236,7 @@ with tabs3:
     )
     fig_scatter2.update_xaxes(
         dtick=1,
-        tickformat='d'   # pastikan tanpa desimal
+        tickformat='d'
     )
 
     with st.container(border=True):
