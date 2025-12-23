@@ -54,7 +54,7 @@ with tabs1:
     max_penduduk = merged['JumlahPenduduk'].max()
 
     with c1:
-        st.metric(f'Total Kasus Baru AIDS Tahun {tahun}', merged_tahun['AIDS'].sum(), border=True, delta=f'{perubahan_kasus:.2f} %')
+        st.metric(f'Total Kasus Baru AIDS Tahun {tahun}', merged_tahun['AIDS'].sum(), border=True, delta=f'{perubahan_kasus:.2f} %',  delta_color="inverse")
     with c2:
         st.metric(f'Total Penduduk {tahun}', f'{merged_tahun['JumlahPenduduk'].sum():,}', border=True, delta=f'{perubahan_penduduk:.2f} %')
 
