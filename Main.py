@@ -45,7 +45,7 @@ with tabs1:
     merged_prevPenduduk = merged_prev['JumlahPenduduk'].sum()
 
     perubahan_kasus = ((merged_tahun['AIDS'].sum() - merged_prevKasus) / merged_prevKasus) * 100
-    perubahan_penduduk = ((merged_tahun['JumlahPenduduk'].sum() - merged_prevPenduduk) / merged_prevPenduduk) * 100
+    perubahan_penduduk = (merged_tahun['JumlahPenduduk'].sum() - merged_prevPenduduk)
 
     min_aids = merged['AIDS'].min()
     max_aids = merged['AIDS'].max()
@@ -54,9 +54,15 @@ with tabs1:
     max_penduduk = merged['JumlahPenduduk'].max()
 
     with c1:
-        st.metric(f'Total Kasus Baru AIDS Tahun {tahun}', merged_tahun['AIDS'].sum(), border=True, delta=f'{perubahan_kasus:.2f} %',  delta_color="inverse")
+        if tahun == 2020:
+            st.metric(f'Total Kasus Baru AIDS Tahun {tahun}', merged_tahun['AIDS'].sum(), border=True)
+        else:
+            st.metric(f'Total Kasus Baru AIDS Tahun {tahun}', merged_tahun['AIDS'].sum(), border=True, delta=f'{perubahan_kasus:.2f} %',  delta_color="inverse")
     with c2:
-        st.metric(f'Total Penduduk {tahun}', f'{merged_tahun['JumlahPenduduk'].sum():,}', border=True, delta=f'{perubahan_penduduk:.2f} %')
+        if tahun == 2020:
+            st.metric(f'Total Penduduk {tahun}', f'{merged_tahun['JumlahPenduduk'].sum():,}', border=True)
+        else:
+            st.metric(f'Total Penduduk {tahun}', f'{merged_tahun['JumlahPenduduk'].sum():,}', border=True, delta=f'{perubahan_penduduk:,}')
 
     fig = px.choropleth(
         merged_tahun,
