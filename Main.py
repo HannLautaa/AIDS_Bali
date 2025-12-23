@@ -3,6 +3,9 @@ import pandas as pd
 import geopandas as gpd
 import plotly.express as px
 import math
+from esda.moran import Moran, Moran_Local
+from libpysal.weights import Queen
+from utils.LISA import lisa_map_px, lisa_map_cluster_px
 
 st.set_page_config(layout='wide')
 
@@ -16,6 +19,49 @@ def load_css(file_name):
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 load_css("assets/styles.css")
+
+# def calculate_morans_i(gdf_merged, col):
+#     try:
+#         w = Queen.from_dataframe(gdf_merged)
+#         w.transform = 'r'
+        
+#         y = gdf_merged[col].values
+        
+#         if y.sum() == 0:
+#             st.warning("⚠️ Semua nilai kasus adalah 0, Moran's I tidak dapat dihitung")
+#             return None, None
+        
+#         moran = Moran(y, w, permutations=999, two_tailed=False)
+        
+#         return moran, w
+#     except Exception as e:
+#         st.error(f"Error calculating Moran's I: {str(e)}")
+#         return None, None
+    
+def calculate_morans_i(gdf_merged, col):
+    try:
+        import numpy as np
+        np.random.seed(42)
+
+        gdf_merged = gdf_merged.sort_index().reset_index(drop=True)
+
+        w = Queen.from_dataframe(gdf_merged)
+        w.transform = 'r'
+
+        y = gdf_merged[col].values
+
+        if y.sum() == 0:
+            st.warning("⚠️ Semua nilai kasus adalah 0, Moran's I tidak dapat dihitung")
+            return None, None
+
+        moran = Moran(y, w, permutations=999)
+
+        return moran, w
+
+    except Exception as e:
+        st.error(f"Error calculating Moran's I: {str(e)}")
+        return None, None
+
 
 data = pd.read_csv('data/Data-Bali.csv')
 data['JumlahPenduduk'] = data['JumlahPenduduk'].apply(lambda x: math.ceil(x))
@@ -226,3 +272,51 @@ with tabs3:
     with st.container(border=True):
         st.plotly_chart(fig_scatter2)
 
+
+with tabs4:
+    def show_morans(t):
+        with st.container(border=True):
+            st.subheader(f'Tahun {str(t)}')
+            mt = merged[merged['Tahun'] == t]
+            moran, w = calculate_morans_i(mt, 'AIDS')
+            if moran:
+                c1, c2, c3 = st.columns(3)
+
+                is_significant = moran.p_sim < 0.05
+
+                with c1:                
+                    st.metric("Moran's I", f'{moran.I:.4f}', border=True)
+                with c2:
+                    st.metric('P-Value', f'{moran.p_sim:.4f}', border=True)
+                with c3:
+                    st.metric('Z-score', f'{moran.z_sim:.4f}', border=True)
+                
+                if is_significant:
+                    st.success("✅ Autokorelasi spasial signifikan")
+                else:
+                    st.info("ℹ️ Tidak ada autokorelasi signifikan")
+
+    st.markdown(r"## $\cdot$ Moran's I")
+
+    m1, m2 = st.columns(2)
+    m3, m4 = st.columns(2)
+
+    with m1:
+        show_morans(2020)
+    with m2:
+        show_morans(2021)
+    with m3:
+        show_morans(2022)
+    with m4:
+        show_morans(2023)
+    show_morans(2024)
+
+    st.markdown(r"## $\cdot$ LISA")
+    l1, l2 = st.columns(2)
+    with l1:
+        with st.container(border=True):
+            lisa_map_px(merged_tahun, 'AIDS')
+    with l2:
+        with st.container(border=True):
+            lisa_map_cluster_px(merged_tahun, 'AIDS')
+    
