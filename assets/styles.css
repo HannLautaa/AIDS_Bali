@@ -1,0 +1,36 @@
+.metric-card {
+    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+    padding: 20px;
+    border-radius: 10px;
+    /* color: black; */
+}
+
+.stMetric {
+    /* background-color: #dcffdf; */
+    /* border: 1px solid #bfffc1; */
+
+    /* padding: 5px; */
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    /* color: black; */
+}
+
+/* Target the actual metric number */
+div[data-testid="stMetricValue"] > div {
+    font-size: 1.3rem !important;
+    font-weight: 600 !important;
+}
+
+/* Optional: label & delta */
+div[data-testid="stMetricLabel"] {
+    font-size: 0.75rem;
+}
+
+div[data-testid="stMetricDelta"] {
+    font-size: 0.9rem;
+}
+
+
+.stVerticalBlock {
+    border-radius: 10px;
+}
