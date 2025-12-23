@@ -20,7 +20,7 @@ load_css("assets/styles.css")
 data = pd.read_csv('data/Data-Bali.csv')
 data['JumlahPenduduk'] = data['JumlahPenduduk'].apply(lambda x: math.ceil(x))
 data['JumlahPenduduk'] = data['JumlahPenduduk'] * 1000
-data['Insidensi'] = (data['AIDS'] / data['JumlahPenduduk']) * 100
+data['Insidensi'] = (data['AIDS'] / data['JumlahPenduduk']) * 100000
 
 gdf = gpd.read_file('data/gadm41_IDN_2.json')
 gdf = gdf[gdf['NAME_1'] == 'Bali'].reset_index(drop=True)
@@ -180,7 +180,7 @@ with tabs3:
         with st.container(border=False, vertical_alignment='center', height='stretch'):
             with st.container(border=True):
                 st.markdown('### Rumus')
-                st.markdown(r'$\text {Incidence Rate} = \frac{\text{Jumlah kasus baru}}{\text{Total populasi}} \times 100\%$')
+                st.markdown(r'$\text {Incidence Rate} = \frac{\text{Jumlah kasus baru}}{\text{Total populasi}} \times 100.000$')
 
     min_ins = data['Insidensi'].min()
     max_ins = data['Insidensi'].max()
@@ -191,7 +191,7 @@ with tabs3:
         locations = merged_tahun.index,
         color = 'Insidensi',
         color_continuous_scale='Reds',
-        title=f'Peta Insidensi Kasus AIDS Provinsi Bali Tahun {tahun}',
+        title=f'Peta Insidensi Kasus AIDS Provinsi Bali Tahun {tahun} per 100.000 Penduduk',
         range_color=[min_ins, max_ins]
     )
 
@@ -220,6 +220,9 @@ with tabs3:
 
     with st.container(border=True):
         st.plotly_chart(fig3)
+        with st.expander('Interpretasi'):
+            st.write('Misal akan dilihat insidensi kasus baru AIDS di Denpasar pada tahun 2024. Maka interpretasinya adalah,')
+            st.write(r'**Pada tahun 2024 di Denpasar, terdapat sekitar 42 kasus baru AIDS pada setiap 100.000 penduduknya.**')
     with st.container(border=True):
         st.plotly_chart(fig_scatter2)
 
