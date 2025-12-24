@@ -6,6 +6,9 @@ import math
 from esda.moran import Moran, Moran_Local
 from libpysal.weights import Queen
 from utils.LISA import lisa_map_px, lisa_map_cluster_px
+from scipy.interpolate import Rbf
+import numpy as np
+import plotly.graph_objects as go
 
 st.set_page_config(layout='wide')
 
@@ -43,6 +46,34 @@ def calculate_morans_i(gdf_merged, col):
     except Exception as e:
         st.error(f"Error calculating Moran's I: {str(e)}")
         return None, None
+
+def idw_interpolation(gdf_merged):
+    try:
+        # Filter hanya data yang valid (tidak NaN dan tidak 0)
+        valid_data = gdf_merged[(gdf_merged['AIDS'].notna()) & (gdf_merged['AIDS'] > 0)]
+        
+        if len(valid_data) < 3:
+            st.warning("⚠️ Data tidak cukup untuk interpolasi (minimal 3 titik dengan kasus > 0)")
+            return None, None, None
+        
+        # Ambil koordinat dan nilai
+        x = valid_data['lon'].values
+        y = valid_data['lat'].values
+        z = valid_data['AIDS'].values
+        
+        # Buat grid
+        xi = np.linspace(x.min(), x.max(), 100)
+        yi = np.linspace(y.min(), y.max(), 100)
+        xi, yi = np.meshgrid(xi, yi)
+        
+        # RBF interpolation (mirip IDW)
+        rbf = Rbf(x, y, z, function='inverse')
+        zi = rbf(xi, yi)
+        
+        return xi, yi, zi
+    except Exception as e:
+        st.error(f"Error in IDW interpolation: {str(e)}")
+        return None, None, None
 
 
 data = pd.read_csv('data/Data-Bali.csv')
@@ -295,3 +326,50 @@ with tabs4:
         with st.container(border=True):
             lisa_map_cluster_px(merged_tahun, 'AIDS')
     
+    
+    st.markdown(r"## $\cdot$ Interpolasi Spasial (IDW)")
+
+    idw_data = merged[merged['Tahun'] == 2024].copy().reset_index(drop=True)
+    idw_data = idw_data.to_crs(epsg=32749)
+
+    idw_data['lon'] = idw_data.geometry.centroid.x
+    idw_data['lat'] = idw_data.geometry.centroid.y
+
+    xi, yi, zi = idw_interpolation(idw_data)
+                
+    if xi is not None:
+        fig = go.Figure(data=go.Contour(
+            x=xi[0],
+            y=yi[:, 0],
+            z=zi,
+            colorscale='YlOrRd',
+            contours=dict(
+                coloring='heatmap',
+                showlabels=True
+            ),
+            colorbar=dict(title="Kasus Prediksi")
+        ))
+        
+        # Tambahkan titik observasi
+        fig.add_trace(go.Scatter(
+            x=idw_data['lon'],
+            y=idw_data['lat'],
+            mode='markers+text',
+            marker=dict(size=10, color='blue', symbol='circle'),
+            text=idw_data['Kabupaten/Kota'],
+            textposition="top center",
+            name='Kabupaten'
+        ))
+        
+        fig.update_layout(
+            title=f'Interpolasi Spasial Kasus Baru AIDS ({tahun})',
+            xaxis_title='Longitude',
+            yaxis_title='Latitude',
+            height=600
+        )
+        
+        with st.container(border=True):
+            st.plotly_chart(fig, use_container_width=True)
+        
+        st.info("📍 Peta menunjukkan estimasi risiko leptospirosis di area yang tidak teramati berdasarkan interpolasi dari kabupaten sekitarnya.")
+            
