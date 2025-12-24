@@ -371,5 +371,5 @@ with tabs4:
         with st.container(border=True):
             st.plotly_chart(fig, use_container_width=True)
         
-        st.info("📍 Peta menunjukkan estimasi risiko leptospirosis di area yang tidak teramati berdasarkan interpolasi dari kabupaten sekitarnya.")
+        st.info("📍 Peta menunjukkan estimasi risiko kasus baru AIDS di area yang tidak teramati berdasarkan interpolasi dari kabupaten sekitarnya.")
             
