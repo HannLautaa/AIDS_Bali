@@ -177,12 +177,19 @@ with tabs1:
             
 with tabs2:
     jumlah = {}
+    jumlah_penduduk = {}
+
     for i in data['Tahun'].unique():
-        jum = data[data['Tahun'] == i]['AIDS']
-        jum = jum.sum()
-        jumlah[f'{i}'] = jum
+        jum_aids = data[data['Tahun'] == i]['AIDS']
+        jum_penduduk = data[data['Tahun'] == i]['JumlahPenduduk']
+        jum_aids = jum_aids.sum()
+        jum_penduduk = jum_penduduk.sum()
+        jumlah[f'{i}'] = jum_aids
+        jumlah_penduduk[f'{i}'] = jum_penduduk
 
     jumlah_df = pd.DataFrame({'Jumlah Kasus Baru': jumlah})
+
+    jumlahPenduduk_df = pd.DataFrame({'Jumlah Penduduk': jumlah_penduduk})
 
     fig_line = px.line(jumlah_df, x=jumlah_df.index, y='Jumlah Kasus Baru', markers=True, title='Tren Total Kasus Baru AIDS Provinsi Bali (2020-2024)')
     fig_line.update_layout(height=350)
@@ -211,6 +218,34 @@ with tabs2:
         st.plotly_chart(fig_line)
     with st.container(border=True):
         st.plotly_chart(fig_scatter)
+
+    fig_line2 = px.line(jumlahPenduduk_df, x=jumlahPenduduk_df.index, y='Jumlah Penduduk', markers=True, title='Tren Total Penduduk Provinsi Bali (2020-2024)')
+    fig_line2.update_layout(height=350)
+    fig_line2.update_xaxes(
+        dtick=1,
+        tickformat='d',
+        title_text='Tahun'
+    )
+
+    fig_scatter2 = px.scatter(data, x='Tahun', y='JumlahPenduduk', color='Kabupaten/Kota', title='Tren Penduduk Provinsi Bali (2020-2024)')
+    fig_scatter2.update_layout(height=350)
+    fig_scatter2.update_traces(
+        mode='lines+markers',
+        line=dict(width=2),
+        marker=dict(
+            size=8, 
+            opacity=0.7, 
+            line=dict(width=1, color='black')
+        )
+    )
+    fig_scatter2.update_xaxes(
+        dtick=1,
+        tickformat='d'
+    )
+    with st.container(border=True):
+        st.plotly_chart(fig_line2)
+    with st.container(border=True):
+        st.plotly_chart(fig_scatter2)
 
 with tabs3:
     with st.container(border=True):
